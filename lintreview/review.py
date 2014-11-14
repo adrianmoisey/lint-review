@@ -22,6 +22,8 @@ class Review(object):
         self._gh = gh
         self._comments = Problems()
         self._number = number
+        self._pr = self._gh.pull_request(self._number)
+        self._issue = self._gh.issue(self._number)
 
     def comments(self, filename):
         return self._comments.all(filename)
@@ -59,7 +61,7 @@ class Review(object):
         for problems
         """
         log.debug("Loading comments for pull request '%s'", self._number)
-        comments = self._gh.pull_requests.comments.list(self._number).all()
+        comments = [comment for comment in self._pr.iter_comments()]
 
         for comment in comments:
             filename = comment.path
@@ -103,25 +105,25 @@ class Review(object):
             }
             log.debug("Publishing comment '%s'", comment)
             try:
-                self._gh.pull_requests.comments.create(self._number, comment)
+                self._pr.create_review_comment(**comment)
             except:
                 log.warn("Failed to save comment '%s'", comment)
 
     def publish_ok_comment(self):
         comment = config.get('OK_COMMENT', ':+1: No lint errors found.')
-        self._gh.issues.comments.create(self._number, comment)
+        self._issue.create_comment(comment)
 
     def publish_empty_comment(self):
         msg = ('Could not review pull request. '
                'It may be too large, or contain no reviewable changes.')
-        self._gh.issues.comments.create(self._number, msg)
+        self._issue.create_comment(msg)
 
     def publish_summary(self, problems):
         msg = "There are {0} errors:\n\n".format(len(problems))
         for problem in problems:
             msg += "* {0.filename}, line {0.line} - {0.body}\n".format(problem)
 
-        self._gh.issues.comments.create(self._number, msg)
+        self._issue.create_comment(msg)
 
 
 class Problems(object):

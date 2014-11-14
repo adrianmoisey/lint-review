@@ -33,9 +33,8 @@ class Processor(object):
 
     def load_changes(self):
         log.info('Loading pull request patches from github.')
-        files = self._client.pull_requests.list_files(self._number)
-        pull_request_patches = files.all()
-        self._changes = DiffCollection(pull_request_patches)
+        files = [file.filename for file in self._client.iter_files()]
+        self._changes = DiffCollection(files)
         self._problems.set_changes(self._changes)
 
     def run_tools(self, review_config):

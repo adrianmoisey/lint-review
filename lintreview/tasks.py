@@ -29,20 +29,21 @@ def process_pull_request(user, repo, number, lintrc):
         log.info('No configured linters, skipping processing.')
         return
 
-    gh = github.get_client(config, user, repo)
     try:
         log.info('Loading pull request data from github.')
-        pull_request = gh.pull_requests.get(number)
-        head_repo = pull_request.head['repo']['clone_url']
-        private_repo = pull_request.head['repo']['private']
-        pr_head = pull_request.head['sha']
+        gh = github.get_repository(config, user, repo)
+        pull_request = gh.pull_request(number)
+        head_repo = pull_request.to_json()['head']['repo']['clone_url']
+        private_repo = pull_request.to_json()['head']['repo']['private']
+        pr_head = pull_request.to_json()['head']['sha']
 
         # Clone/Update repository
         target_path = git.get_repo_path(user, repo, number, config)
         git.clone_or_update(config, head_repo, target_path, pr_head,
                             private_repo)
 
-        processor = Processor(gh, number, pr_head, target_path, config)
+        processor = Processor(gh, number, pr_head,
+                              target_path, config)
         processor.load_changes()
         processor.run_tools(review_config)
         processor.publish()
