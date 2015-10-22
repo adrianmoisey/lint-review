@@ -11,4 +11,3 @@ RUN pear install PHP_CodeSniffer
 RUN gem install bundler && bundle install --system
 RUN npm install -y csslint jshint
 RUN ln -s /usr/bin/nodejs /usr/bin/node
-RUN nosetests -v
