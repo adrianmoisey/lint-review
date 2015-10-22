@@ -40,9 +40,9 @@ def process_pull_request(user, repo, number, target_branch, lintrc):
                  number, target_branch)
         gh = github.get_repository(config, user, repo)
         pull_request = gh.pull_request(number)
-        head_repo = pull_request.to_json()['head']['repo']['clone_url']
-        private_repo = pull_request.to_json()['head']['repo']['private']
-        pr_head = pull_request.to_json()['head']['sha']
+        head_repo = pull_request.as_dict()['head']['repo']['clone_url']
+        private_repo = pull_request.as_dict()['head']['repo']['private']
+        pr_head = pull_request.as_dict()['head']['sha']
 
         # Clone/Update repository
         target_path = git.get_repo_path(user, repo, number, config)

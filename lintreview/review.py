@@ -1,6 +1,6 @@
 import logging
 from lintreview.config import load_config
-from pygithub3.exceptions import NotFound
+#from pygithub3.exceptions import NotFound
 
 
 config = load_config()
@@ -23,7 +23,7 @@ class IssueComment(object):
     def publish(self, gh, pull_request_number, head_commit=None):
         log.debug("Publishing issue comment '%s'", self.body)
         try:
-            gh.issues.comments.create(pull_request_number, self.body)
+            gh.issue(pull_request_number).create_comment(self.body)
         except:
             log.warn("Failed to save comment '%s'", self.body)
 
@@ -51,11 +51,11 @@ class IssueLabel(object):
 
     def remove(self, gh, pull_request_number):
         try:
-            labels = gh.issues.labels.list_by_issue(pull_request_number)
+            labels = gh.issue(pull_request_number).labels()
             if not any(self.label == label.name for label in labels):
                 return
             log.debug("Removing issue label '%s'", self.label)
-            gh.issues.labels.remove_from_issue(pull_request_number, self.label)
+            gh.issue(pull_request_number).remove_label(self.label)
         except:
             log.warn("Failed to remove label '%s'", self.label)
 
@@ -64,32 +64,13 @@ class IssueLabel(object):
         self.remove(gh, pull_request_number)
         log.debug("Publishing issue label '%s'", self.label)
         try:
-            try:
-                gh.issues.labels.get(self.label)
-            except NotFound:
-                # create label if it doesn't exist yet
-                gh.issues.labels.create({
-                    "name": self.label,
-                    "color": "bfe5bf", # a nice light green
-                })
-
-            # add_to_issue should be all we need to do, but it's buggy...
-            #gh.issues.labels.add_to_issue(pull_request_number, [self.label])
-            # work around the bugs in add_to_issue
-            import json
-            request = gh.issues.labels.make_request(
-                'issues.labels.add_to_issue',
-                user=None,
-                repo=None,
-                number=pull_request_number,
-                body=json.dumps([self.label])
-            )
-            # gh.issues.labels._post asserts response.status_code == 201
-            # so we have to reach deeper because the github API returns 200
-            input_data = request.get_body()
-            response = gh.issues.labels._client.request(
-                            'post', request, data=input_data)
-            assert response.status_code == 200
+            # create label if it doesn't exist yet
+            if not gh.label(self.label):
+                gh.create_label(
+                    name=self.label,
+                    color="bfe5bf", # a nice light green
+                )
+            gh.issue(pull_request_number).add_labels(self.label)
 
         except:
             log.warn("Failed to add label '%s'", self.label)
@@ -114,7 +95,7 @@ class Comment(IssueComment):
         }
         log.debug("Publishing line comment '%s'", comment)
         try:
-            gh.pull_requests.comments.create(pull_request_number, comment)
+            gh.pull_request(pull_request_number).create_review_comment(**comment)
         except:
             log.warn("Failed to save comment '%s'", comment)
 
@@ -170,7 +151,9 @@ class Review(object):
         for problems
         """
         log.debug("Loading comments for pull request '%s'", self._number)
-        comments = [comment for comment in self._pr.iter_comments()]
+        #comments = list(self._pr.iter_comments())
+        #comments = list(self._pr.issue_comments())
+        comments = [comment for comment in self._pr.review_comments()]
 
         for comment in comments:
             filename = comment.path

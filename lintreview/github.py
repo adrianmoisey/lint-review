@@ -35,8 +35,8 @@ def get_lintrc(gh):
     some hackery will ensue.
     """
     log.info('Fetching lintrc file')
-    response = gh.contents('.lintrc')
-    return response.decoded()
+    response = gh.file_contents('.lintrc')
+    return response.decoded
 
 
 def register_hook(gh, hook_url, user, repo):
@@ -44,7 +44,7 @@ def register_hook(gh, hook_url, user, repo):
     Register a new hook with a user's repository.
     """
     log.info('Registering webhook for %s on %s/%s', hook_url, user, repo)
-    hooks = gh.iter_hooks
+    hooks = gh.hooks()
     found = False
     for hook in hooks:
         if hook.name != 'web':
@@ -69,7 +69,7 @@ def register_hook(gh, hook_url, user, repo):
         'events': ['pull_request']
     }
     try:
-        gh.create_hook(**hooks)
+        gh.create_hook(**hook)
     except:
         message = ("Unable to save webhook. You need to have administration"
                    "privileges over the repository to add webhooks.")
@@ -83,7 +83,7 @@ def unregister_hook(gh, hook_url, user, repo):
     Remove a registered webhook.
     """
     log.info('Removing webhook for %s on %s/%s', hook_url, user, repo)
-    hooks = gh.iter_hooks()
+    hooks = gh.hooks()
     hook_id = False
     for hook in hooks:
         if hook.name != 'web':
