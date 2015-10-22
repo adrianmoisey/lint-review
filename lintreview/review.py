@@ -130,6 +130,8 @@ class Review(object):
         self._gh = gh
         self._comments = Problems()
         self._number = number
+        self._pr = self._gh.pull_request(self._number)
+        self._issue = self._gh.issue(self._number)
 
     def comments(self, filename):
         return self._comments.all(filename)
@@ -168,7 +170,7 @@ class Review(object):
         for problems
         """
         log.debug("Loading comments for pull request '%s'", self._number)
-        comments = self._gh.pull_requests.comments.list(self._number).all()
+        comments = [comment for comment in self._pr.iter_comments()]
 
         for comment in comments:
             filename = comment.path
