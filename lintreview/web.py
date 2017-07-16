@@ -23,6 +23,21 @@ def ping():
 
 @app.route("/review/start", methods=["POST"])
 def start_review():
+    if not any(host_header in request.headers for host_header in ('X-GitHub-Event', 'X-GitLab-Event')):
+        return Response(status=400)
+
+    if 'X-GitHub-Event' in request.headers:
+        return handle_github_hook()
+    else:
+        return handle_gitlab_hook()
+
+
+def handle_gitlab_hook():
+    log.info("GitLab hook hit")
+    pass
+
+
+def handle_github_hook():
     event = request.headers.get('X-Github-Event')
     if event == 'ping':
         return Response(status=200)
