@@ -5,7 +5,7 @@ from flask import Flask, request, Response
 from lintreview.config import load_config
 from lintreview.github import get_repository
 from lintreview.github import get_lintrc
-from lintreview import gitlab_lr
+from lintreview import gitlab_lr as gitlab
 from lintreview.tasks import process_pull_request
 from lintreview.tasks import cleanup_pull_request
 
