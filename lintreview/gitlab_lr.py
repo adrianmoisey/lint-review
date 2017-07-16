@@ -24,4 +24,4 @@ def get_lintrc(repo, ref):
     """
     log.info('Fetching lintrc file')
     response = repo.repository_blob(ref, '.lintrc')
-    return response.decoded
+    return response
