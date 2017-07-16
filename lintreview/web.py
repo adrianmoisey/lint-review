@@ -37,7 +37,7 @@ def handle_gitlab_hook():
     try:
         object_attributes = request.json["object_attributes"]
         action = object_attributes["action"]
-        number = object_attributes["iid"]
+        number = object_attributes["id"]
         base_repo_url = object_attributes["target"]["url"]
         head_repo_url = object_attributes["source"]["url"]
         head_repo_ref = object_attributes["source_branch"]
@@ -62,7 +62,7 @@ def handle_gitlab_hook():
     if action == "close":
         return close_review(user, repo, pull_request) # FIXME
 
-    gl = gitlab.get_repository(app.config, head_user, head_repo)
+    gl = gitlab.get_repository(app.config, number)
     try:
         lintrc = gitlab.get_lintrc(gl, head_repo_ref)
         log.debug("lintrc file contents '%s'", lintrc)
@@ -73,7 +73,7 @@ def handle_gitlab_hook():
         return Response(status=204)
     try:
         log.info("Scheduling pull request for %s/%s %s", user, repo, number)
-        process_pull_request.delay(user, repo, number, lintrc)  # FIXME
+        process_pull_request.delay('gitlab', user, repo, number, lintrc)  # FIXME
     except:
         log.error('Could not publish job to celery. Make sure its running.')
         return Response(status=500)
@@ -123,7 +123,7 @@ def handle_github_hook():
         return Response(status=204)
     try:
         log.info("Scheduling pull request for %s/%s %s", user, repo, number)
-        process_pull_request.delay(user, repo, number, lintrc)
+        process_pull_request.delay('github', user, repo, number, lintrc)
     except:
         log.error('Could not publish job to celery. Make sure its running.')
         return Response(status=500)
