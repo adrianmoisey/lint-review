@@ -50,7 +50,7 @@ def handle_gitlab_hook():
         return Response(status=403,
                         response="You must provide a valid JSON body\n")
 
-    log.info("Received GitLub merge request notification for "
+    log.info("Received GitLab merge request notification for "
              "%s %s, (%s) from: %s",
              base_repo_url, number, action, head_repo_url)
 
