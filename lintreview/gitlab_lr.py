@@ -10,7 +10,7 @@ def get_client(config):
     """
     Factory for the Github client
     """
-    return gitlab.Gitlab('https://api.gitlab.com', config['GITHUB_OAUTH_TOKEN'])
+    return gitlab.Gitlab('https://gitlab.com', config['GITHUB_OAUTH_TOKEN'])
 
 
 def get_repository(config, user, repo):
