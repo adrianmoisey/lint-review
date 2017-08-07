@@ -28,45 +28,42 @@ def process_pull_request(provider, user, repo_name, number, lintrc):
         log.info('No configured linters, skipping processing.')
         return
 
-    try:
-        log.info('Loading pull request data from %s. user=%s '
-                 'repo=%s number=%s', provider, user, repo_name, number)
-        if provider == 'gitlab':
-            repo = GitlabRepository(config, user, number)
-        else:
-            repo = GithubRepository(config, user, repo_name)
-        pull_request = repo.pull_request(number)
+    log.info('Loading pull request data from %s. user=%s '
+             'repo=%s number=%s', provider, user, repo_name, number)
+    if provider == 'gitlab':
+        repo = GitlabRepository(config, user, number)
+    else:
+        repo = GithubRepository(config, user, repo_name)
+    pull_request = repo.pull_request(number)
 
-        head_repo = pull_request.clone_url
+    head_repo = pull_request.clone_url
 
-        private_repo = pull_request.is_private
-        pr_head = pull_request.head
-        target_branch = pull_request.target_branch
+    private_repo = pull_request.is_private
+    pr_head = pull_request.head
+    target_branch = pull_request.target_branch
 
-        if target_branch in review_config.ignore_branches():
-            log.info('Pull request into ignored branch %s, skipping processing.' %
-                     target_branch)
-            return
+    if target_branch in review_config.ignore_branches():
+        log.info('Pull request into ignored branch %s, skipping processing.' %
+                 target_branch)
+        return
 
-        status = config.get('PULLREQUEST_STATUS', True)
-        if status:
-            repo.create_status(pr_head, 'pending', 'Lintreview processing...')
+    status = config.get('PULLREQUEST_STATUS', True)
+    if status:
+        repo.create_status(pr_head, 'pending', 'Lintreview processing...')
 
-        # Clone/Update repository
-        target_path = git.get_repo_path(user, repo_name, number, config)
-        git.clone_or_update(config, head_repo, target_path, pr_head,
-                            private_repo)
+    # Clone/Update repository
+    target_path = git.get_repo_path(user, repo_name, number, config)
+    git.clone_or_update(config, head_repo, target_path, pr_head,
+                        private_repo)
 
-        processor = Processor(repo, pull_request,
-                              target_path, config)
-        processor.load_changes()
-        processor.run_tools(review_config)
-        processor.publish()
+    processor = Processor(repo, pull_request,
+                          target_path, config)
+    processor.load_changes()
+    processor.run_tools(review_config)
+    processor.publish()
 
-        log.info('Completed lint processing for %s/%s/%s' % (
-            user, repo, number))
-    except BaseException, e:
-        log.exception(e)
+    log.info('Completed lint processing for %s/%s/%s' % (
+        user, repo, number))
 
 
 @celery.task(ignore_result=True)
