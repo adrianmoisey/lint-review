@@ -15,12 +15,12 @@ log = logging.getLogger(__name__)
 
 
 @celery.task(ignore_result=True)
-def process_pull_request(user, repo_name, number, lintrc):
+def process_pull_request(provider, user, repo_name, number, lintrc):
     """
     Starts processing a pull request and running the various
     lint tools against it.
     """
-    log.info('Starting to process lint for %s/%s/%s', user, repo_name, number)
+    log.info('Starting to process lint for %s: %s/%s/%s', provider, user, repo_name, number)
     log.debug("lintrc contents '%s'", lintrc)
     review_config = build_review_config(lintrc, config)
 
@@ -29,9 +29,12 @@ def process_pull_request(user, repo_name, number, lintrc):
         return
 
     try:
-        log.info('Loading pull request data from github. user=%s '
-                 'repo=%s number=%s', user, repo_name, number)
-        repo = GithubRepository(config, user, repo_name)
+        log.info('Loading pull request data from %s. user=%s '
+                 'repo=%s number=%s', provider user, repo_name, number)
+        if provider == 'gitlab':
+            repo = GitlabRepository(config, user, repo_name)
+        else:
+            repo = GithubRepository(config, user, repo_name)
         pull_request = repo.pull_request(number)
 
         head_repo = pull_request.clone_url
