@@ -217,7 +217,7 @@ class GitlabPullRequest(object):
 
     @property
     def target_branch(self):
-        return target_branch = self.pull.as_dict()['target_branch']
+        return self.pull.as_dict()['target_branch']
 
     def commits(self):
         return self.pull.commits()
