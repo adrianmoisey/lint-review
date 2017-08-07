@@ -34,12 +34,18 @@ def process_pull_request(provider, user, repo_name, number, lintrc):
         repo = GitlabRepository(config, user, number)
     else:
         repo = GithubRepository(config, user, repo_name)
+
+    log.info("Before Pull_request")
     pull_request = repo.pull_request(number)
 
+    log.info("Before head_repo")
     head_repo = pull_request.clone_url
 
+    log.info("Before private_repo")
     private_repo = pull_request.is_private
+    log.info("Before pr_head")
     pr_head = pull_request.head
+    log.info("Before target_branch")
     target_branch = pull_request.target_branch
 
     if target_branch in review_config.ignore_branches():
