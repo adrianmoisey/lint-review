@@ -4,7 +4,7 @@ import logging
 
 from celery import Celery
 from lintreview.config import load_config, build_review_config
-from lintreview.repo import GithubRepository
+from lintreview.repo import GithubRepository, GitlabRepository
 from lintreview.processor import Processor
 
 config = load_config()
