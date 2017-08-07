@@ -31,7 +31,7 @@ def process_pull_request(provider, user, repo_name, number, lintrc):
     log.info('Loading pull request data from %s. user=%s '
              'repo=%s number=%s', provider, user, repo_name, number)
     if provider == 'gitlab':
-        repo = GitlabRepository(config, user, number)
+        repo = GitlabRepository(config, user, repo_name)
     else:
         repo = GithubRepository(config, user, repo_name)
 
