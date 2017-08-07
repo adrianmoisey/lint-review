@@ -74,7 +74,7 @@ def handle_gitlab_hook():
         return Response(status=204)
     try:
         log.info("Scheduling pull request for %s/%s %s", user, repo, number)
-        process_pull_request.delay('gitlab', user, repo, project_id, lintrc)  # FIXME
+        process_pull_request.delay('gitlab', user, project_id, number, lintrc)  # FIXME
     except:
         log.error('Could not publish job to celery. Make sure its running.')
         return Response(status=500)
