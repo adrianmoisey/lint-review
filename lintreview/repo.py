@@ -142,7 +142,6 @@ class GitlabRepository(Repository):
         """
         self.repo = gitlab.get_repository(
             self.config,
-            self.user,
             self.repo_name)
         return self.repo
 
