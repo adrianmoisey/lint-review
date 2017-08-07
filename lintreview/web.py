@@ -37,7 +37,8 @@ def handle_gitlab_hook():
     try:
         object_attributes = request.json["object_attributes"]
         action = object_attributes["action"]
-        number = object_attributes["source_project_id"]
+        number = object_attributes["iid"]
+        project_id = object_attributes["source_project_id"]
         base_repo_url = object_attributes["target"]["url"]
         head_repo_url = object_attributes["source"]["url"]
         head_repo_ref = object_attributes["source_branch"]
@@ -62,7 +63,7 @@ def handle_gitlab_hook():
     if action == "close":
         return close_review(user, repo, pull_request) # FIXME
 
-    gl = gitlab.get_repository(app.config, number)
+    gl = gitlab.get_repository(app.config, project_id)
     try:
         lintrc = gitlab.get_lintrc(gl, head_repo_ref)
         log.debug("lintrc file contents '%s'", lintrc)
