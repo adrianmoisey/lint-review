@@ -35,7 +35,7 @@ def process_pull_request(provider, user, repo_name, number, lintrc):
     else:
         repo = GithubRepository(config, user, repo_name)
 
-    log.info("Before Pull_request")
+    log.info("Before Pull_request %s" % number)
     pull_request = repo.pull_request(number)
 
     log.info("Before head_repo")
