@@ -43,9 +43,7 @@ def handle_gitlab_hook():
         head_repo_url = object_attributes["source"]["url"]
         head_repo_ref = object_attributes["source_branch"]
         user = object_attributes["target"]["namespace"]
-        head_user = object_attributes["source"]["namespace"]
         repo = object_attributes["target"]["name"]
-        head_repo = object_attributes["source"]["name"]
 
     except Exception as e:
         log.error("Got an invalid JSON body. '%s'", e)
