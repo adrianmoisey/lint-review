@@ -148,12 +148,10 @@ class GitlabRepository(Repository):
     def pull_request(self, number):
         """Get a pull request by number.
         """
-        print "Before repo"
         repository = self.repository()
-        print "before pull"
         pull = self.repository().mergerequests.get(number)
         print "before gl"
-        gl = GitlabPullRequest(config, repository, pull)
+        gl = GitlabPullRequest(self.config, repository, pull)
         print "before return"
         return gl
 
@@ -161,7 +159,7 @@ class GitlabRepository(Repository):
         """Create label if it doesn't exist yet
         """
         repo = self.repository()
-        if not repo.labels.get(label_name):
+        if not repo.labels.get(label):
             repo.labels.create({
                 'name': label,
                 'color': "bfe5bf",  # a nice light green
