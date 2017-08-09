@@ -38,7 +38,7 @@ def handle_gitlab_hook():
         object_attributes = request.json["object_attributes"]
         action = object_attributes["action"]
         number = object_attributes["id"]
-        project_id = object_attributes["source_project_id"]
+        project_id = object_attributes["target_project_id"]
         base_repo_url = object_attributes["target"]["url"]
         head_repo_url = object_attributes["source"]["url"]
         head_repo_ref = object_attributes["source_branch"]
