@@ -148,8 +148,11 @@ class GitlabRepository(Repository):
     def pull_request(self, number):
         """Get a pull request by number.
         """
+        print "Before repo"
         repository = self.repository()
+        print "before pull"
         pull = self.repository().mergerequests.get(number)
+        print "before return"
         return GitlabPullRequest(config, repository, pull)
 
     def ensure_label(self, label):
