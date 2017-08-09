@@ -152,8 +152,10 @@ class GitlabRepository(Repository):
         repository = self.repository()
         print "before pull"
         pull = self.repository().mergerequests.get(number)
+        print "before gl"
+        gl = GitlabPullRequest(config, repository, pull)
         print "before return"
-        return GitlabPullRequest(config, repository, pull)
+        return gl
 
     def ensure_label(self, label):
         """Create label if it doesn't exist yet
