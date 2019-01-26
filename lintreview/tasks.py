@@ -39,23 +39,23 @@ def process_pull_request(provider, user, repo_name, number, lintrc):
     pull_request = repo.pull_request(number)
 
     log.info("Before head_repo")
-    head_repo = pull_request.clone_url
+    head_repo = repo.attributes['http_url_to_repo']
 
     log.info("Before private_repo")
-    private_repo = pull_request.is_private
+    private_repo = False  # FIXME
     log.info("Before pr_head")
-    pr_head = pull_request.head
+    pr_head = 'FIXME'
     log.info("Before target_branch")
-    target_branch = pull_request.target_branch
+    target_branch = pull_request.attributes['target_branch']
 
     if target_branch in review_config.ignore_branches():
         log.info('Pull request into ignored branch %s, skipping processing.' %
                  target_branch)
         return
 
-    status = config.get('PULLREQUEST_STATUS', True)
-    if status:
-        repo.create_status(pr_head, 'pending', 'Lintreview processing...')
+    #status = config.get('PULLREQUEST_STATUS', True)
+    #if status:
+    #    repo.create_status(pr_head, 'pending', 'Lintreview processing...')
 
     # Clone/Update repository
     target_path = git.get_repo_path(user, repo_name, number, config)
